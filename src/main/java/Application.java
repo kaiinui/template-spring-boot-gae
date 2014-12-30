@@ -15,15 +15,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@RestController
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-    }
-
-    @RequestMapping
-    public String home() {
-        return "Hello!";
     }
 
     // To avoid java.lang.NoSuchMethodError: javax.servlet.http.HttpServletResponse.getStatus()

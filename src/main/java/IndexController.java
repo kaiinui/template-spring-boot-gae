@@ -1,3 +1,4 @@
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -6,8 +7,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class IndexController {
-    @RequestMapping("/app")
+    @RequestMapping("/")
     public String index() {
         return "Hello World!";
+    }
+
+    @RequestMapping("/books/{id}")
+    public Book getBook(@PathVariable String id) {
+        return new Book("Alice in Wonderland", id);
     }
 }
