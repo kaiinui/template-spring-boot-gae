@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'appengine'
 apply plugin: 'idea'
 apply plugin: 'war'
+apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.5
 version = '1.0'
@@ -15,18 +16,44 @@ buildscript {
 
     dependencies {
         classpath 'com.google.appengine:gradle-appengine-plugin:1.9.17'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.1.10.RELEASE'
     }
 }
 
 repositories {
     mavenCentral()
+    maven {
+        url 'http://repo.spring.io/snapshot'
+    }
+    maven {
+        url 'http://repo.spring.io/milestone'
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    providedCompile "javax.servlet:javax.servlet-api:3.+"
+
+    // App Engine
+    providedCompile "javax.servlet:javax.servlet-api:3.1.0"
+    compile 'com.google.appengine:appengine-java-sdk:1.9.15'
+
+    // Spring Boot
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    providedCompile 'org.springframework.boot:spring-boot-starter-jetty'
+    compile 'org.springframework.boot:spring-boot-legacy:1.0.1.RELEASE' // https://github.com/scratches/spring-boot-sample-gae
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    // Spring Beans for App Engine
+    compile 'com.googlecode.spring-appengine:spring-appengine:0.2'
+
+    // App Engine Testing
+    testCompile 'com.google.appengine:appengine-api-labs:1.9.15'
+    testCompile 'com.google.appengine:appengine-api-stubs:1.9.15'
+    testCompile 'com.google.appengine:appengine-testing:1.9.15'
 }
 
+// enable providedCompile
 sourceSets.main.compileClasspath += configurations.providedCompile
 sourceSets.test.compileClasspath += configurations.providedCompile
 sourceSets.test.runtimeClasspath += configurations.providedCompile
