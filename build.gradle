@@ -11,6 +11,7 @@ configurations { providedCompile }
 
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
 
@@ -28,6 +29,10 @@ repositories {
     maven {
         url 'http://repo.spring.io/milestone'
     }
+    maven {
+        // https://code.google.com/p/gmultipart/
+        url 'http://gmultipart.googlecode.com/svn/repo/m2'
+    }
 }
 
 dependencies {
@@ -35,25 +40,44 @@ dependencies {
 
     // App Engine
     providedCompile "javax.servlet:javax.servlet-api:3.1.0"
-    compile 'com.google.appengine:appengine-java-sdk:1.9.15'
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.15'
+    compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.15'
+    compile 'gmultipart:gmultipart:0.4'
+    compile 'com.google.appengine.tools:appengine-gcs-client:0.4.3'
+
+    // Utilities
+    compile 'com.github.isrsal:spring-mvc-logger:0.2'
 
     // Spring Boot
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     providedCompile 'org.springframework.boot:spring-boot-starter-jetty'
-    compile 'org.springframework.boot:spring-boot-legacy:1.0.1.RELEASE' // https://github.com/scratches/spring-boot-sample-gae
+    compile 'org.springframework.boot:spring-boot-legacy:1.0.1.RELEASE' // @see https://github.com/scratches/spring-boot-sample-gae since App Engine's Servlet 2.5 capability.
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 
     // Spring Beans for App Engine
     compile 'com.googlecode.spring-appengine:spring-appengine:0.2'
 
     // App Engine Testing
-    testCompile 'com.google.appengine:appengine-api-labs:1.9.15'
+    compile 'com.google.appengine:appengine-api-labs:1.9.15' // @see http://www.gani.com.au/2011/05/viewing-google-app-engine-appstats-triggers-nullpointerexception/
     testCompile 'com.google.appengine:appengine-api-stubs:1.9.15'
     testCompile 'com.google.appengine:appengine-testing:1.9.15'
+
+    // External Dependencies
+    compile 'com.pusher:pusher-rest-java:0.9.0'
+    compile 'org.apache.httpcomponents:httpclient:4.3.6'
+    compile 'commons-fileupload:commons-fileupload:1.3.1'
 }
 
-// enable providedCompile
+// Enable providedCompile
 sourceSets.main.compileClasspath += configurations.providedCompile
 sourceSets.test.compileClasspath += configurations.providedCompile
 sourceSets.test.runtimeClasspath += configurations.providedCompile
+
+// Enable Test Logging
+test {
+    testLogging {
+        events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat "short"
+    }
+}

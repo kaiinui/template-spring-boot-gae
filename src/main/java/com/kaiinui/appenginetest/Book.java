@@ -1,7 +1,13 @@
+package com.kaiinui.appenginetest;
+
+import java.io.Serializable;
+
 /**
  * Created by kaiinui on 2014/12/30.
  */
 public class Book {
+    public Book() {}
+
     public Book(String title, String authorName) {
         this.title = title;
         this.authorName = authorName;

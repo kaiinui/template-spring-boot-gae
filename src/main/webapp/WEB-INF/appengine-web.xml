@@ -3,4 +3,9 @@
     <application>kaiinuitest</application>
     <version>1</version>
     <threadsafe>true</threadsafe>
+
+    <!-- Appstats -->
+    <admin-console>
+        <page name="Appstats" url="/appstats" />
+    </admin-console>
 </appengine-web-app>
