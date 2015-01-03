@@ -15,6 +15,7 @@ import com.googlecode.spring.appengine.api.factory.QueueFactoryBean;
 import com.googlecode.spring.appengine.cache.memcache.MemcacheCache;
 import com.kaiinui.appenginetest.cache.MemcacheCacheManager;
 import com.kaiinui.appenginetest.debug.RpcLogDelegate;
+import com.kaiinui.appenginetest.queue.TaskManager;
 import org.gmr.web.multipart.GMultipartResolver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -64,6 +65,11 @@ public class Application {
     @Bean(name = "cacheManager")
     public CacheManager cacheManager() {
         return new MemcacheCacheManager();
+    }
+
+    @Bean(name = "taskManager")
+    public TaskManager taskManager() {
+        return new TaskManager();
     }
 
     // Task Queue Service
