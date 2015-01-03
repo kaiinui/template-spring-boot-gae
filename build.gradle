@@ -7,12 +7,22 @@ apply plugin: 'spring-boot'
 sourceCompatibility = 1.5
 version = '1.0'
 
-configurations { providedCompile }
+def slim3Version = "1.0+"
+def appengineVersion = "1.9.15"
+
+configurations {
+    aptCompile5
+    providedCompile
+}
 
 buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        maven {
+            // slim3
+            url "https://www.seasar.org/maven/maven2"
+        }
     }
 
     dependencies {
@@ -28,6 +38,10 @@ repositories {
     }
     maven {
         url 'http://repo.spring.io/milestone'
+    }
+    maven {
+        // slim3
+        url "https://www.seasar.org/maven/maven2"
     }
     maven {
         // https://code.google.com/p/gmultipart/
@@ -48,18 +62,28 @@ dependencies {
     // Utilities
     compile 'com.github.isrsal:spring-mvc-logger:0.2'
 
+    // slim3
+    compile("org.slim3:slim3:${slim3Version}") {
+        exclude group: "com.google.appengine", module: "appengine-api-1.0-sdk"
+        exclude group: "com.google.appengine", module: "appengine-api-labs"
+    }
+    aptCompile5("org.slim3:slim3-gen:${slim3Version}") {
+        exclude group: "org.apache.ant", module: "ant"
+    }
+
     // Spring Boot
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     providedCompile 'org.springframework.boot:spring-boot-starter-jetty'
     compile 'org.springframework.boot:spring-boot-legacy:1.0.1.RELEASE' // @see https://github.com/scratches/spring-boot-sample-gae since App Engine's Servlet 2.5 capability.
     testCompile 'org.springframework.boot:spring-boot-starter-test'
+    compile 'org.springframework:spring-context'
 
     // Spring Beans for App Engine
     compile 'com.googlecode.spring-appengine:spring-appengine:0.2'
 
     // App Engine Testing
-    compile 'com.google.appengine:appengine-api-labs:1.9.15' // @see http://www.gani.com.au/2011/05/viewing-google-app-engine-appstats-triggers-nullpointerexception/
+    compile 'com.google.appengine:appengine-api-labs:1.9.15' // why not testCompile? @see http://www.gani.com.au/2011/05/viewing-google-app-engine-appstats-triggers-nullpointerexception/
     testCompile 'com.google.appengine:appengine-api-stubs:1.9.15'
     testCompile 'com.google.appengine:appengine-testing:1.9.15'
 
@@ -70,9 +94,42 @@ dependencies {
 }
 
 // Enable providedCompile
-sourceSets.main.compileClasspath += configurations.providedCompile
-sourceSets.test.compileClasspath += configurations.providedCompile
-sourceSets.test.runtimeClasspath += configurations.providedCompile
+// @see https://gist.github.com/u1aryz/4428306
+sourceSets {
+    apt_generated
+    main.compileClasspath += configurations.providedCompile
+    test.compileClasspath += configurations.providedCompile
+    test.runtimeClasspath += configurations.providedCompile
+}
+
+// APT for slim3
+// http://int128.hatenablog.com/entry/20120813/1344854664
+task compileAptJava(overwrite: true) << {
+    // 出力先が存在しないとant.aptがエラーになる
+    sourceSets.apt_generated.output.resourcesDir.mkdirs()
+    // ant.aptにfactorypathを直接渡せないのでID渡し
+    ant.path(id: 'aptFactoryPath', location: configurations.aptCompile5.asPath)
+    ant.apt(compile: false,
+            includeAntRuntime: false,
+            factorypathref: 'aptFactoryPath',
+            classpath: configurations.compile.asPath,
+            preprocessdir: sourceSets.apt_generated.output.resourcesDir,
+            encoding: 'UTF-8') {
+        sourceSets.main.java.srcDirs.each{
+            src(path: it)
+        }
+    }
+
+    sourceSets.main.java.srcDirs += sourceSets.apt_generated.output.resourcesDir
+}
+compileJava.dependsOn compileAptJava
+
+idea {
+    module {
+        sourceDirs += file("build/resources/apt_generated")
+        excludeDirs = [] // Since apt_generated is in /build which is ignored
+    }
+}
 
 // Enable Test Logging
 test {

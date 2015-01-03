@@ -4,7 +4,6 @@ import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.memcache.AsyncMemcacheService;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
@@ -14,20 +13,19 @@ import com.googlecode.spring.appengine.api.factory.ImagesServiceFactoryBean;
 import com.googlecode.spring.appengine.api.factory.MemcacheServiceFactoryBean;
 import com.googlecode.spring.appengine.api.factory.QueueFactoryBean;
 import com.googlecode.spring.appengine.cache.memcache.MemcacheCache;
-import com.googlecode.spring.appengine.cache.memcache.MemcacheCacheManager;
+import com.kaiinui.appenginetest.cache.MemcacheCacheManager;
 import com.kaiinui.appenginetest.debug.RpcLogDelegate;
 import org.gmr.web.multipart.GMultipartResolver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
 /**
  * Created by kaiinui on 2014/12/30.
@@ -36,6 +34,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 @Configuration
 @ComponentScan(basePackages = "com.kaiinui.appenginetest")
 @EnableAutoConfiguration
+@EnableCaching
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -58,6 +57,13 @@ public class Application {
         resolver.setMaxUploadSize(100000);
 
         return resolver;
+    }
+
+    // @Cacheable Support
+    // ===
+    @Bean(name = "cacheManager")
+    public CacheManager cacheManager() {
+        return new MemcacheCacheManager();
     }
 
     // Task Queue Service
